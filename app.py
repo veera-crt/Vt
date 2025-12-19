@@ -51,20 +51,15 @@ def generate_otp():
 
 
 
-def send_email_async(app_context, msg):
-    with app_context:
-        try:
-            mail.send(msg)
-        except Exception as e:
-            print(f"Failed to send email: {e}")
-
 def send_email(to, subject, body):
     msg = Message(subject, sender=app.config['MAIL_USERNAME'], recipients=[to])
     msg.body = body
-    # Send email in a background thread to avoid blocking the user
-    thread = threading.Thread(target=send_email_async, args=(app.app_context(), msg))
-    thread.start()
-    return True
+    try:
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Failed to send email to {to}: {e}")
+        return False
 
 # --- Routes ---
 
