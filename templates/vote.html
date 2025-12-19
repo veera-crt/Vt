@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cast Vote - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .candidate-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all var(--transition-speed);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .candidate-card.selected {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        .candidate-img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            height: auto;
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--text-muted);
+        }
+
+        .candidate-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .radio-hidden {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .vote-confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .vote-confirm-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote</div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+            </div>
+        </nav>
+
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <div class="text-center" style="margin: 3rem 0;">
+                <h2>{{ election[1] }}</h2>
+                <p>{{ election[2] }}</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">Select one candidate from
+                    the list below. Your vote is encrypted and anonymous.</p>
+            </div>
+
+            <form id="votingForm" action="{{ url_for('vote', election_id=election[0]) }}" method="POST">
+                <div class="candidate-grid">
+                    {% if candidates %}
+                    {% for candidate in candidates %}
+                    <label class="candidate-card" onclick="selectCandidate(this)">
+                        <input type="radio" name="candidate_id" value="{{ candidate[0] }}" class="radio-hidden"
+                            required>
+                        <div class="candidate-img">
+                            {% if candidate[5] %}
+                            <img src="{{ candidate[5] }}" alt="{{ candidate[2] }}"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                            👤
+                            {% endif %}
+                        </div>
+                        <div class="candidate-info">
+                            <h3>{{ candidate[2] }}</h3>
+                            <p style="color: var(--secondary-color); font-weight: 600;">{{ candidate[3] }}</p>
+                            <p style="font-size: 0.9rem;">"{{ candidate[4] }}"</p>
+                        </div>
+                    </label>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-center" style="grid-column: 1/-1;">No candidates found for this election.</p>
+                    {% endif %}
+                </div>
+
+                <div class="text-center" style="margin-top: 3rem; margin-bottom: 3rem;">
+                    <button type="button" onclick="showConfirm()" class="btn btn-primary"
+                        style="padding: 1rem 3rem; font-size: 1.2rem;">Submit Vote</button>
+                </div>
+
+                <!-- Confirmation Modal -->
+                <div class="vote-confirm-modal" id="confirmModal">
+                    <div class="modal-content">
+                        <h3 style="margin-bottom: 1rem;">Confirm Your Vote</h3>
+                        <p style="margin-bottom: 2rem;">You are about to cast your vote. This action cannot be undone.
+                            Are you sure?</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="button" onclick="hideConfirm()" class="btn btn-outline">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Yes, Cast Vote</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function selectCandidate(card) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+            // Add selected class to clicked card
+            card.classList.add('selected');
+        }
+
+        function showConfirm() {
+            const selected = document.querySelector('input[name="candidate_id"]:checked');
+            if (!selected) {
+                alert('Please select a candidate first.');
+                return;
+            }
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function hideConfirm() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>

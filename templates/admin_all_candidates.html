@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Candidates - SecureVote Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 3rem;">SecureVote <span
+                    style="font-size: 0.7rem; background: var(--accent-color); padding: 0.1rem 0.3rem; border-radius: 3px;">ADMIN</span>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">Dashboard</a>
+                <a href="{{ url_for('admin_elections') }}" class="sidebar-link">Manage Elections</a>
+                <a href="{{ url_for('admin_all_candidates') }}" class="sidebar-link active">Candidates</a>
+                <a href="{{ url_for('admin_voters') }}" class="sidebar-link">Voters</a>
+                <a href="{{ url_for('admin_results') }}" class="sidebar-link">Results</a>
+                <a href="{{ url_for('admin_settings') }}" class="sidebar-link">Settings</a>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                    <a href="{{ url_for('index') }}" class="sidebar-link" style="color: #ef4444;">Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h2>All Candidates</h2>
+            </header>
+
+            <div
+                style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                {% if candidates %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Party</th>
+                            <th>Election</th>
+                            <th>Votes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidate in candidates %}
+                        <tr>
+                            <td>{{ candidate.name }}</td>
+                            <td>{{ candidate.party }}</td>
+                            <td>{{ candidate.election_title }}</td>
+                            <td>{{ candidate.votes }}</td>
+                            <td>
+                                <a href="{{ url_for('admin_candidates', election_id=candidate.election_id) }}"
+                                    style="color: var(--primary-color);">Manage</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: var(--text-muted);">No candidates found.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

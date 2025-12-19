@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .results-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(20px);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .chart-container {
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .bar-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .bar-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .bar-track {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .winner-badge {
+            background: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .status-text-active {
+            color: #4ade80;
+        }
+
+        .status-text-default {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote</div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('user_results') }}" style="color: var(--primary-color);">Results</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </nav>
+
+        <div class="results-container">
+            <div class="text-center mb-4">
+                <h1>Live Election Results</h1>
+                <p>Real-time updates on ongoing and past elections.</p>
+            </div>
+
+            {% if results %}
+            {% for election in results %}
+            <div class="result-card">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.75rem; margin-bottom: 0.5rem;">{{ election.title }}</h2>
+                        <span
+                            style="padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; background: rgba(255,255,255,0.1);">
+                            Total Votes: {{ election.total_votes }}
+                        </span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Status</div>
+                        <div class="{% if election.status == 'active' %}status-text-active{% else %}status-text-default{% endif %}"
+                            style="font-weight: 600;">
+                            {{ election.status|upper }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    {% for candidate in election.candidates %}
+                    <div class="bar-group">
+                        <div class="bar-header">
+                            <div>
+                                <span style="font-weight: 600; font-size: 1.1rem;">{{ candidate.name }}</span>
+                                <span style="color: var(--text-muted); margin-left: 0.5rem;">{{ candidate.party
+                                    }}</span>
+                                {% if loop.first and election.total_votes > 0 and election.status == 'ended' %}
+                                <span class="winner-badge">WINNER</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-weight: 600;">{{ candidate.percentage }}% <span
+                                    style="color: var(--text-muted); font-weight: 400; font-size: 0.9rem;">({{
+                                    candidate.votes }} votes)</span></div>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill" style="--target-width: {{ candidate.percentage }}%;"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="text-center" style="padding: 4rem; color: var(--text-muted);">
+                <p>No election results available yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Animate bars on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.bar-fill');
+            bars.forEach(bar => {
+                const targetWidth = bar.style.getPropertyValue('--target-width');
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+
+</html>

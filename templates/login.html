@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+            </div>
+        </nav>
+
+        <div class="form-container">
+            <h2 class="text-center mb-4">Voter Login</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="voter_id" class="form-label">Email Address</label>
+                    <input type="email" id="voter_id" name="voter_id" class="form-control"
+                        placeholder="Enter your Email Address" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                        required>
+                </div>
+                <div class="form-group" style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                    <label
+                        style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); cursor: pointer;">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="{{ url_for('forgot_password') }}" style="font-size: 0.875rem;">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                <p class="text-center mt-4" style="font-size: 0.9rem;">
+                    New to SecureVote? <a href="{{ url_for('register') }}">Register now</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Elections - SecureVote Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status-active {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-upcoming {
+            background: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+
+        .status-hidden,
+        .status-default {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 3rem;">SecureVote <span
+                    style="font-size: 0.7rem; background: var(--accent-color); padding: 0.1rem 0.3rem; border-radius: 3px;">ADMIN</span>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">Dashboard</a>
+                <a href="{{ url_for('admin_elections') }}" class="sidebar-link active">Manage Elections</a>
+                <a href="{{ url_for('admin_all_candidates') }}" class="sidebar-link">Candidates</a>
+                <a href="{{ url_for('admin_voters') }}" class="sidebar-link">Voters</a>
+                <a href="{{ url_for('admin_results') }}" class="sidebar-link">Results</a>
+                <a href="{{ url_for('admin_settings') }}" class="sidebar-link">Settings</a>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                    <a href="{{ url_for('index') }}" class="sidebar-link" style="color: #ef4444;">Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h2>Manage Elections</h2>
+            </header>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <!-- List Elections -->
+                <div>
+                    <div
+                        style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem;">Existing Elections</h3>
+                        {% if elections %}
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for election in elections %}
+                                <tr>
+                                    <td>{{ election[1] }}</td>
+                                    <td>
+                                        <span
+                                            class="status-badge {% if election[5] == 'active' %}status-active{% elif election[5] == 'upcoming' %}status-upcoming{% else %}status-default{% endif %}">
+                                            {{ election[5]|upper }}
+                                        </span>
+                                    </td>
+                                    <td>{{ election[3].strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ election[4].strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_candidates', election_id=election[0]) }}"
+                                            style="color: var(--primary-color); margin-right: 0.5rem; text-decoration: none;">Candidates</a>
+                                        <a href="{{ url_for('edit_election', election_id=election[0]) }}"
+                                            style="color: var(--secondary-color); margin-right: 0.5rem; text-decoration: none;">Edit</a>
+                                        <a href="{{ url_for('delete_election', election_id=election[0]) }}"
+                                            style="color: #ef4444; text-decoration: none;"
+                                            onclick="return confirm('Are you sure? This will delete all votes and candidates associated with this election.');">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p style="color: var(--text-muted);">No elections found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Create Election Form -->
+                <div>
+                    <div
+                        style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem;">Create New Election</h3>
+                        <form action="{{ url_for('admin_elections') }}" method="POST">
+                            <div class="form-group">
+                                <label class="form-label">Election Title</label>
+                                <input type="text" name="title" class="form-input" required
+                                    placeholder="e.g. Student Council 2024">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-input" rows="3"
+                                    placeholder="Brief description..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Start Date</label>
+                                <input type="datetime-local" name="start_date" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Date</label>
+                                <input type="datetime-local" name="end_date" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-input">
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="active">Active</option>
+                                    <option value="hidden">Hidden</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Election</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

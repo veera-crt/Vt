@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 3rem;">SecureVote <span
+                    style="font-size: 0.7rem; background: var(--accent-color); padding: 0.1rem 0.3rem; border-radius: 3px;">ADMIN</span>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link active">Dashboard</a>
+                <a href="{{ url_for('admin_elections') }}" class="sidebar-link">Manage Elections</a>
+                <a href="{{ url_for('admin_all_candidates') }}" class="sidebar-link">Candidates</a>
+                <a href="{{ url_for('admin_voters') }}" class="sidebar-link">Voters</a>
+                <a href="{{ url_for('admin_results') }}" class="sidebar-link">Results</a>
+                <a href="{{ url_for('admin_settings') }}" class="sidebar-link">Settings</a>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                    <a href="{{ url_for('index') }}" class="sidebar-link" style="color: #ef4444;">Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Overview</h2>
+                <a href="{{ url_for('admin_elections') }}" class="btn btn-primary" style="text-decoration: none;">+
+                    Create Election</a>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Voters</div>
+                    <div class="stat-value">{{ total_voters }}</div>
+                    <div style="color: #4ade80; font-size: 0.8rem;">Registered Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Votes Cast</div>
+                    <div class="stat-value">{{ total_votes }}</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Total across all elections</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active Elections</div>
+                    <div class="stat-value">{{ active_elections }}</div>
+                    <div style="color: var(--secondary-color); font-size: 0.8rem;">Currently Running</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Approvals</div>
+                    <div class="stat-value">{{ pending_users|length }}</div>
+                    <div style="color: var(--accent-color); font-size: 0.8rem;">Requires Action</div>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                <h3 style="margin-bottom: 1rem;">Pending Approvals</h3>
+                {% if pending_users %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Voter ID</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in pending_users %}
+                        <tr>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.voter_id }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <a href="{{ url_for('approve_user', user_id=user.id) }}" class="action-btn"
+                                    style="color: #4ade80; border-color: #4ade80;">Approve</a>
+                                <a href="{{ url_for('reject_user', user_id=user.id) }}" class="action-btn"
+                                    style="color: #ef4444; border-color: #ef4444;">Reject</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; padding: 2rem;">No pending approvals.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

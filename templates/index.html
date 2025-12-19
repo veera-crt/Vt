@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureVote - Online Voting Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">Your Voice,<br><span>Your Power.</span></h1>
+                <p>Experience the future of democracy with our secure, transparent, and easy-to-use online voting
+                    platform. Cast your vote from anywhere in the world.</p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+                    <a href="#features" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-card">
+                    {% if election %}
+                    <h3>{{ election.title }}</h3>
+                    <p style="margin-bottom: 1rem;">Status: <span style="color: #4ade80; text-transform: capitalize;">{{
+                            election.status }}</span></p>
+
+                    {% for candidate in election.candidates %}
+                    <div
+                        style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span>{{ candidate.name }}</span>
+                            <span>{{ candidate.percentage }}%</span>
+                        </div>
+                        <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px;">
+                            <div
+                                style="width: {{ candidate.percentage }}%; height: 100%; background: {% if loop.index == 1 %}var(--secondary-color){% else %}var(--accent-color){% endif %}; border-radius: 3px;">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% if not election.candidates %}
+                    <p style="color: var(--text-muted);">No votes cast yet.</p>
+                    {% endif %}
+
+                    {% else %}
+                    <h3>No Active Election</h3>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">Check back later for upcoming elections.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 SecureVote. All rights reserved. | <a href="{{ url_for('admin_login') }}">Admin Access</a>
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

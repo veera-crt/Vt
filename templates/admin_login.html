@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote <span
+                    style="font-size: 0.8rem; background: var(--accent-color); padding: 0.2rem 0.5rem; border-radius: 4px; vertical-align: middle; margin-left: 0.5rem;">ADMIN</span>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Back to Site</a>
+            </div>
+        </nav>
+
+        <div class="form-container" style="border-color: var(--accent-color);">
+            <h2 class="text-center mb-4">Admin Portal</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="admin_id" class="form-label">Admin ID</label>
+                    <input type="text" id="admin_id" name="admin_id" class="form-control" placeholder="Enter Admin ID"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="security_code" class="form-label">Security Code</label>
+                    <input type="password" id="security_code" name="security_code" class="form-control"
+                        placeholder="Enter 2FA Code" required>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; background: linear-gradient(135deg, var(--accent-color), #db2777);">Access
+                    Dashboard</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

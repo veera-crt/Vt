@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Candidates - SecureVote Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 3rem;">SecureVote <span
+                    style="font-size: 0.7rem; background: var(--accent-color); padding: 0.1rem 0.3rem; border-radius: 3px;">ADMIN</span>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">Dashboard</a>
+                <a href="{{ url_for('admin_elections') }}" class="sidebar-link active">Manage Elections</a>
+                <a href="{{ url_for('admin_all_candidates') }}" class="sidebar-link">Candidates</a>
+                <a href="{{ url_for('admin_voters') }}" class="sidebar-link">Voters</a>
+                <a href="{{ url_for('admin_results') }}" class="sidebar-link">Results</a>
+                <a href="{{ url_for('admin_settings') }}" class="sidebar-link">Settings</a>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                    <a href="{{ url_for('index') }}" class="sidebar-link" style="color: #ef4444;">Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+                <a href="{{ url_for('admin_elections') }}" class="btn btn-secondary">← Back</a>
+                <h2>Candidates for: {{ election[1] }}</h2>
+            </header>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                <!-- List Candidates -->
+                <div>
+                    <div
+                        style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem;">Registered Candidates</h3>
+                        {% if candidates %}
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Party</th>
+                                    <th>Votes</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for candidate in candidates %}
+                                <tr>
+                                    <td>{{ candidate[2] }}</td>
+                                    <td>{{ candidate[3] }}</td>
+                                    <td>{{ candidate[6] }}</td>
+                                    <td>
+                                        <a href="{{ url_for('delete_candidate', candidate_id=candidate[0]) }}"
+                                            style="color: #ef4444;"
+                                            onclick="return confirm('Are you sure you want to delete this candidate? This cannot be undone.')">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p style="color: var(--text-muted);">No candidates found for this election.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Add Candidate Form -->
+                <div>
+                    <div
+                        style="background: var(--bg-card); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem;">Add Candidate</h3>
+                        <form action="{{ url_for('admin_candidates', election_id=election[0]) }}" method="POST">
+                            <div class="form-group">
+                                <label class="form-label">Candidate Name</label>
+                                <input type="text" name="name" class="form-input" required placeholder="Full Name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Party / Affiliation</label>
+                                <input type="text" name="party" class="form-input" placeholder="e.g. Independent">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Manifesto</label>
+                                <textarea name="manifesto" class="form-input" rows="3"
+                                    placeholder="Key promises..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Image URL</label>
+                                <input type="text" name="image_url" class="form-input" placeholder="https://...">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Add Candidate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

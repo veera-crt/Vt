@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results - SecureVote Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-muted);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 2rem;
+        }
+
+        .candidate-result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.5rem;
+        }
+
+        .candidate-info {
+            flex: 1;
+        }
+
+        .vote-bar-container {
+            flex: 2;
+            margin: 0 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .vote-bar {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 5px;
+            transition: width 1s ease-in-out;
+            width: var(--bar-width, 0%);
+        }
+
+        .vote-count {
+            font-weight: 700;
+            font-size: 1.2rem;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .status-active {
+            color: #4ade80;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo" style="margin-bottom: 3rem;">SecureVote <span
+                    style="font-size: 0.7rem; background: var(--accent-color); padding: 0.1rem 0.3rem; border-radius: 3px;">ADMIN</span>
+            </div>
+            <nav>
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">Dashboard</a>
+                <a href="{{ url_for('admin_elections') }}" class="sidebar-link">Manage Elections</a>
+                <a href="{{ url_for('admin_all_candidates') }}" class="sidebar-link">Candidates</a>
+                <a href="{{ url_for('admin_voters') }}" class="sidebar-link">Voters</a>
+                <a href="{{ url_for('admin_results') }}" class="sidebar-link active">Results</a>
+                <a href="{{ url_for('admin_settings') }}" class="sidebar-link">Settings</a>
+                <div style="margin-top: 3rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
+                    <a href="{{ url_for('index') }}" class="sidebar-link" style="color: #ef4444;">Logout</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header style="margin-bottom: 2rem;">
+                <h2>Election Results</h2>
+            </header>
+
+            {% for election in results %}
+            <div class="result-card">
+                <h3 style="margin-bottom: 0.5rem;">{{ election.title }}</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    Status: <span class="{% if election.status == 'active' %}status-active{% endif %}">{{
+                        election.status|upper }}</span>
+                    • Total Votes: {{ election.total_votes }}
+                </p>
+
+                {% for candidate in election.candidates %}
+                <div class="candidate-result">
+                    <div class="candidate-info">
+                        <div style="font-weight: 600;">{{ candidate.name }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">{{ candidate.party }}</div>
+                    </div>
+                    <div class="vote-bar-container">
+                        <div class="vote-bar" style="--bar-width: {{ candidate.percentage }}%;"></div>
+                    </div>
+                    <div class="vote-count">
+                        {{ candidate.votes }}
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 400;">{{
+                            candidate.percentage }}%</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted);">No election results available.</p>
+            {% endfor %}
+        </main>
+    </div>
+</body>
+
+</html>

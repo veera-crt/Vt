@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Dashboard - SecureVote</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .election-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform var(--transition-speed);
+        }
+
+        .election-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status-active {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-upcoming {
+            background: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+
+        .status-ended {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="logo">SecureVote</div>
+            <div class="nav-links">
+                <a href="{{ url_for('dashboard') }}" style="color: var(--primary-color);">Dashboard</a>
+                <a href="{{ url_for('user_results') }}">Results</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline btn-sm">Logout</a>
+            </div>
+        </nav>
+
+        <div class="hero" style="padding: 4rem 0; text-align: center;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem;">Your Voice, <span
+                        style="background: linear-gradient(to right, var(--secondary-color), var(--primary-color)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Your
+                        Power</span></h1>
+                <p style="font-size: 1.25rem; margin-bottom: 2rem;">Participate in shaping the future. Review active
+                    elections below and cast your vote securely.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <h2 style="margin-bottom: 2rem;">Active Elections</h2>
+
+            <div class="dashboard-grid">
+                {% if elections %}
+                {% for election in elections %}
+                <div class="election-card" {% if election[5]=='ended' %}style="opacity: 0.7;" {% endif %}>
+                    <span
+                        class="status-badge {% if election[5] == 'active' %}status-active{% elif election[5] == 'upcoming' %}status-upcoming{% else %}status-ended{% endif %}">
+                        {% if election[5] == 'active' %}Active Now{% elif election[5] == 'upcoming' %}Upcoming{% else
+                        %}Ended{% endif %}
+                    </span>
+                    <h3>{{ election[1] }}</h3>
+                    <p>{{ election[2] }}</p>
+                    <div style="margin-top: 1.5rem;">
+                        {% if election[5] == 'active' %}
+                        {% if election[0] in user_votes %}
+                        <button class="btn btn-outline" style="width: 100%; color: #4ade80; border-color: #4ade80;"
+                            disabled>Voted ✓</button>
+                        {% else %}
+                        <a href="{{ url_for('vote', election_id=election[0]) }}" class="btn btn-primary"
+                            style="width: 100%;">Vote Now</a>
+                        {% endif %}
+                        {% elif election[5] == 'upcoming' %}
+                        <button class="btn btn-outline" style="width: 100%;" disabled>Starts {{
+                            election[3].strftime('%Y-%m-%d') }}</button>
+                        {% else %}
+                        <button class="btn btn-outline" style="width: 100%;" disabled>View Results</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No elections available at the moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
