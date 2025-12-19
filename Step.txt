@@ -2,17 +2,17 @@ STEP 1: Remove all previous Git connections (VERY IMPORTANT)
 
 This deletes old remotes completely.
 
-git remote -v
+*git remote -v
 
 
 If you see origin, remove it:
 
-git remote remove origin
+*git remote remove origin
 
 
 Confirm it’s gone:
 
-git remote -v
+*git remote -v
 
 
 👉 Output should be empty.
@@ -22,13 +22,13 @@ STEP 2: Remove old Git history (optional but BEST for demo)
 
 If you want a fresh Git story from frame one:
 
-rm -rf .git
+*rm -rf .git
 
 
 Now Git memory is erased completely. Clean slate. 🧼
 
 STEP 3: Initialize Git from scratch
-git init
+*git init
 
 
 Say on video:
@@ -36,7 +36,7 @@ Say on video:
 “This initializes Git in our project.”
 
 STEP 4: Add all files
-git add .
+*git add .
 
 
 Say:
@@ -44,7 +44,7 @@ Say:
 “This stages all project files.”
 
 STEP 5: Make first commit
-git commit -m "Initial commit"
+*git commit -m "Initial commit"
 
 
 Say:
@@ -52,7 +52,7 @@ Say:
 “This creates our first snapshot.”
 
 STEP 6: Rename branch to main
-git branch -M main
+*git branch -M main
 
 
 Say:
@@ -60,7 +60,7 @@ Say:
 “GitHub uses main as the default branch.”
 
 STEP 7: Add the NEW GitHub repository
-git remote add origin https://github.com/<your repo ???> 
+*git remote add origin https://github.com/<your repo ???> 
 
 
 Say:
@@ -68,7 +68,7 @@ Say:
 “This connects our local project to GitHub.”
 
 STEP 8: Push to GitHub (FIRST PUSH)
-git push -u origin main
+*git push -u origin main
 
 
 Say:
